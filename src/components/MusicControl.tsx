@@ -49,7 +49,7 @@ export const MusicControl: React.FC = () => {
       {/* Background audio element */}
       <audio
         ref={audioRef}
-        src="./bg-music.mp3"
+        src={`${import.meta.env.BASE_URL}bg-music.mp3`}
         loop
         preload="auto"
       />
