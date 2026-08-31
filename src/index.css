@@ -1,0 +1,50 @@
+@import "tailwindcss";
+
+@theme {
+  --color-pastel-pink: #ffd6e0;
+  --color-blush-pink: #fbc4ce;
+  --color-lavender: #d8c3ff;
+  --color-baby-blue: #c4d7ec;
+  --color-peach: #ffdfba;
+  --color-cream: #fbfbf2;
+  --color-deep-navy: #0a0b16;
+  --color-twilight-purple: #1a102b;
+  --color-twilight-blue: #0b132a;
+  
+  --font-serif: "Playfair Display", serif;
+  --font-sans: "Inter", sans-serif;
+  --font-handwriting: "Dancing Script", cursive;
+}
+
+@layer base {
+  body {
+    @apply m-0 p-0 antialiased overflow-x-hidden text-slate-100;
+    background: linear-gradient(135deg, var(--color-deep-navy) 0%, var(--color-twilight-purple) 50%, var(--color-twilight-blue) 100%);
+    background-attachment: fixed;
+    font-family: var(--font-sans);
+  }
+  
+  h1, h2, h3, h4, h5, h6 {
+    font-family: var(--font-serif);
+  }
+}
+
+/* Custom cinematic animations */
+@keyframes float {
+  0% { transform: translateY(0) translateX(0) }
+  33% { transform: translateY(-10px) translateX(10px) }
+  66% { transform: translateY(10px) translateX(-5px) }
+  100% { transform: translateY(0) translateX(0) }
+}
+
+.animate-float {
+  animation: float 10s ease-in-out infinite;
+}
+
+.petal {
+  position: absolute;
+  background: linear-gradient(135deg, rgba(255, 214, 224, 0.8) 0%, rgba(251, 196, 206, 0.6) 100%);
+  border-radius: 15px 0px 15px 0px;
+  box-shadow: 0 0 12px rgba(255, 214, 224, 0.5);
+  pointer-events: none;
+}
