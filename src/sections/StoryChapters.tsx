@@ -102,7 +102,7 @@ export const ChapterSeven = () => (
       transition={{ duration: 1.5, delay: 2.5 }}
       className="text-lg sm:text-xl md:text-2xl font-handwriting text-pastel-pink mt-4 px-4"
     >
-      anduke honey papa ni love chesa
+      anduke Honey papa ni love chesa
     </motion.p>
   </ChapterLayout>
 );
