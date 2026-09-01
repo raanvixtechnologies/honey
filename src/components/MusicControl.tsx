@@ -16,66 +16,86 @@ export const MusicControl: React.FC = () => {
     return () => clearTimeout(timer);
   }, []);
 
+  const attemptPlay = async (): Promise<boolean> => {
+    if (!audioRef.current) return false;
+    try {
+      await audioRef.current.play();
+      setIsPlaying(true);
+      setShowTooltip(false);
+      return true;
+    } catch (err) {
+      console.warn("Autoplay/play attempt prevented or waiting for user gesture:", err);
+      return false;
+    }
+  };
+
   useEffect(() => {
-    const handleFirstInteraction = () => {
-      if (audioRef.current && !isPlaying) {
-        audioRef.current.play()
-          .then(() => {
-            setIsPlaying(true);
-            setShowTooltip(false);
-            removeListeners();
-          })
-          .catch((err) => {
-            console.warn("Autoplay interaction prevented:", err);
-          });
+    const handleFirstInteraction = async () => {
+      if (isPlaying) return;
+      const success = await attemptPlay();
+      if (success) {
+        removeListeners();
       }
     };
 
     const removeListeners = () => {
       window.removeEventListener('click', handleFirstInteraction);
       window.removeEventListener('touchstart', handleFirstInteraction);
+      window.removeEventListener('touchend', handleFirstInteraction);
       window.removeEventListener('pointerdown', handleFirstInteraction);
       window.removeEventListener('keydown', handleFirstInteraction);
+      window.removeEventListener('scroll', handleFirstInteraction);
     };
 
-    window.addEventListener('click', handleFirstInteraction);
-    window.addEventListener('touchstart', handleFirstInteraction);
-    window.addEventListener('pointerdown', handleFirstInteraction);
-    window.addEventListener('keydown', handleFirstInteraction);
+    window.addEventListener('click', handleFirstInteraction, { passive: true });
+    window.addEventListener('touchstart', handleFirstInteraction, { passive: true });
+    window.addEventListener('touchend', handleFirstInteraction, { passive: true });
+    window.addEventListener('pointerdown', handleFirstInteraction, { passive: true });
+    window.addEventListener('keydown', handleFirstInteraction, { passive: true });
+    window.addEventListener('scroll', handleFirstInteraction, { passive: true });
 
     return () => {
       removeListeners();
     };
   }, [isPlaying]);
 
-  const togglePlay = (e?: React.MouseEvent) => {
+  const togglePlay = (e?: React.MouseEvent | React.TouchEvent) => {
     if (e) e.stopPropagation();
-    if (audioRef.current) {
-      if (isPlaying) {
-        audioRef.current.pause();
-        setIsPlaying(false);
-      } else {
-        audioRef.current.play()
-          .then(() => {
-            setIsPlaying(true);
-            setShowTooltip(false);
-          })
-          .catch((err) => {
-            console.warn("Manual play error:", err);
-          });
-      }
+    if (!audioRef.current) return;
+
+    if (isPlaying) {
+      audioRef.current.pause();
+      setIsPlaying(false);
+    } else {
+      audioRef.current.load();
+      audioRef.current.play()
+        .then(() => {
+          setIsPlaying(true);
+          setShowTooltip(false);
+        })
+        .catch((err) => {
+          console.warn("Manual play error:", err);
+        });
     }
   };
 
+  // Base path for public static assets fallback
+  const publicMusicPath = `${import.meta.env.BASE_URL || './'}bg-music.mp3`.replace(/\/+/g, '/');
+
   return (
     <>
-      {/* Background audio element */}
+      {/* Background audio element with multiple source fallbacks */}
       <audio
         ref={audioRef}
-        src={bgMusic}
         loop
         preload="auto"
-      />
+        playsInline
+      >
+        <source src={bgMusic} type="audio/mpeg" />
+        <source src={publicMusicPath} type="audio/mpeg" />
+        <source src="./bg-music.mp3" type="audio/mpeg" />
+        <source src="/bg-music.mp3" type="audio/mpeg" />
+      </audio>
 
       <div className="fixed bottom-6 right-6 z-50 flex items-center gap-3">
         <AnimatePresence>
@@ -85,7 +105,7 @@ export const MusicControl: React.FC = () => {
               animate={{ opacity: 1, x: 0 }}
               exit={{ opacity: 0, x: 10 }}
               onClick={togglePlay}
-              className="cursor-pointer bg-deep-navy/90 backdrop-blur-md text-lavender text-xs px-3 py-1.5 rounded-full border border-lavender/30 shadow-lg flex items-center gap-1.5 animate-pulse hover:bg-lavender/20 transition-all"
+              className="cursor-pointer bg-deep-navy/90 backdrop-blur-md text-lavender text-xs px-3 py-1.5 rounded-full border border-lavender/30 shadow-lg flex items-center gap-1.5 animate-pulse hover:bg-lavender/20 transition-all select-none"
             >
               <span>🎵 Click anywhere or tap here to play music</span>
             </motion.div>
